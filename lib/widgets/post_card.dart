@@ -22,9 +22,10 @@ class PostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final int id = post['id'] as int? ?? 0;
-    final String title = _capitalizedTitle(post['title'] as String? ?? '');
-    final String body = post['body'] as String? ?? '';
+    // Works with int ids (JSONPlaceholder) and String ids (MockAPI).
+    final int id = int.tryParse(post['id']?.toString() ?? '') ?? 0;
+    final String title = _capitalizedTitle(post['title']?.toString() ?? '');
+    final String body = post['body']?.toString() ?? '';
     final ColorScheme scheme = Theme.of(context).colorScheme;
 
     return Card(
