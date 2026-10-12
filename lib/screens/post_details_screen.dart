@@ -24,16 +24,17 @@ class PostDetailsScreen extends StatelessWidget {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      added
-          ? AppSnackbar.success('Added to favorites.')
-          : AppSnackbar.info('Already in favorites. Your note was kept.'),
-    );
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        added
+            ? AppSnackbar.success('Added to favorites.')
+            : AppSnackbar.info('Already in favorites. Your note was kept.'),
+      );
   }
 
   @override
   Widget build(BuildContext context) {
-    // Keep the route argument cast visible, and handle bad arguments gracefully.
     final Object? routeArguments =
         ModalRoute.of(context)!.settings.arguments;
     Map<String, dynamic>? post;
@@ -56,12 +57,43 @@ class PostDetailsScreen extends StatelessWidget {
           ),
           title: const Text('Post Details'),
         ),
-        body: const Center(
+        body: Center(
           child: Padding(
-            padding: EdgeInsets.all(AppSpacing.xlarge),
-            child: Text(
-              'This post could not be opened. Return to the posts list and select a post again.',
-              textAlign: TextAlign.center,
+            padding: const EdgeInsets.all(AppSpacing.xlarge),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Container(
+                  width: 76,
+                  height: 76,
+                  decoration: const BoxDecoration(
+                    color: AppColors.tealSoft,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.article_outlined,
+                    color: AppColors.teal,
+                    size: 34,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.large),
+                Text(
+                  'Post unavailable',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: AppSpacing.small),
+                Text(
+                  'Return to the posts list and select a post to read its details.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: AppSpacing.large),
+                FilledButton.icon(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.arrow_back_rounded),
+                  label: const Text('Back to posts'),
+                ),
+              ],
             ),
           ),
         ),
@@ -81,100 +113,225 @@ class PostDetailsScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back_rounded),
         ),
         title: const Text('Post Details'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.large),
-        child: Card(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.xlarge),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.medium,
-                    vertical: AppSpacing.small,
-                  ),
-                  decoration: BoxDecoration(
-                    color: scheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: Text(
-                    'POST #$id',
-                    style: TextStyle(
-                      color: scheme.onPrimaryContainer,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.7,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xlarge),
-                Text(title, style: Theme.of(context).textTheme.headlineSmall),
-                const Divider(),
-                Text(
-                  body,
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-              ],
+        actions: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(right: AppSpacing.large),
+            child: Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: AppColors.tealSoft,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.article_rounded,
+                size: 20,
+                color: AppColors.teal,
+              ),
             ),
           ),
-        ),
+        ],
       ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.large,
-            AppSpacing.small,
-            AppSpacing.large,
-            AppSpacing.large,
-          ),
-          child: ValueListenableBuilder<Box<dynamic>>(
-            valueListenable:
-                Hive.box<dynamic>('favoritesBox').listenable(keys: <dynamic>[id]),
-            builder: (BuildContext context, Box<dynamic> box, Widget? child) {
-              final bool isSaved = box.containsKey(id);
-              return AnimatedSwitcher(
-                duration: const Duration(milliseconds: 180),
-                child: isSaved
-                    ? Column(
-                        key: const ValueKey<String>('saved'),
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          SizedBox(
-                            width: double.infinity,
-                            child: FilledButton.tonalIcon(
-                              onPressed: null,
-                              icon: const Icon(Icons.favorite_rounded),
-                              label: const Text('Saved to Favorites'),
-                            ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.large,
+          AppSpacing.small,
+          AppSpacing.large,
+          AppSpacing.xlarge,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(AppSpacing.xlarge),
+              decoration: BoxDecoration(
+                color: AppColors.navy,
+                borderRadius: BorderRadius.circular(AppRadius.card),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.medium,
+                          vertical: AppSpacing.small,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(AppRadius.pill),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.14),
                           ),
-                          const SizedBox(height: AppSpacing.small),
-                          Text(
-                            'Already in favorites. Your saved note was kept.',
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: scheme.onSurfaceVariant,
-                                ),
+                        ),
+                        child: Text(
+                          'POST  #${id.toString().padLeft(2, '0')}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.9,
                           ),
-                        ],
-                      )
-                    : SizedBox(
-                        key: const ValueKey<String>('save'),
-                        width: double.infinity,
-                        child: FilledButton.icon(
-                          onPressed: () => _savePost(
-                            context,
-                            id: id,
-                            title: title,
-                            body: body,
-                          ),
-                          icon: const Icon(Icons.favorite_border_rounded),
-                          label: const Text('Save to Favorites'),
                         ),
                       ),
-              );
-            },
+                      const Spacer(),
+                      const Icon(
+                        Icons.auto_stories_rounded,
+                        size: 26,
+                        color: Color(0xFFE4C17A),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.xlarge),
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          color: Colors.white,
+                          fontSize: 28,
+                          height: 1.2,
+                        ),
+                  ),
+                  const SizedBox(height: AppSpacing.medium),
+                  Text(
+                    'POST READER  /  ARTICLE VIEW',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: Colors.white.withValues(alpha: 0.72),
+                          letterSpacing: 1.05,
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.large),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.xlarge),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: AppColors.tealSoft,
+                            borderRadius: BorderRadius.circular(11),
+                          ),
+                          child: const Icon(
+                            Icons.subject_rounded,
+                            color: AppColors.teal,
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.medium),
+                        Text(
+                          'Article',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.large),
+                    Text(
+                      body,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    const SizedBox(height: AppSpacing.large),
+                    Divider(color: scheme.outlineVariant),
+                    Row(
+                      children: <Widget>[
+                        const Icon(
+                          Icons.bookmark_border_rounded,
+                          size: 18,
+                          color: AppColors.textSecondary,
+                        ),
+                        const SizedBox(width: AppSpacing.small),
+                        Expanded(
+                          child: Text(
+                            'Save this post to find it quickly later.',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          color: AppColors.surface,
+          border: Border(top: BorderSide(color: AppColors.outline)),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.large,
+              AppSpacing.medium,
+              AppSpacing.large,
+              AppSpacing.medium,
+            ),
+            child: ValueListenableBuilder<Box<dynamic>>(
+              valueListenable:
+                  Hive.box<dynamic>('favoritesBox').listenable(keys: <dynamic>[id]),
+              builder: (BuildContext context, Box<dynamic> box, Widget? child) {
+                final bool isSaved = box.containsKey(id);
+                return AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 180),
+                  child: isSaved
+                      ? Column(
+                          key: const ValueKey<String>('saved'),
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            SizedBox(
+                              width: double.infinity,
+                              child: FilledButton.tonalIcon(
+                                onPressed: null,
+                                icon: const Icon(Icons.favorite_rounded),
+                                label: const Text('Saved to Favorites'),
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: AppColors.tealSoft,
+                                  disabledBackgroundColor: AppColors.tealSoft,
+                                  disabledForegroundColor: AppColors.teal,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.small),
+                            Text(
+                              'Already saved. Your personal note is safe.',
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: scheme.onSurfaceVariant,
+                                  ),
+                            ),
+                          ],
+                        )
+                      : SizedBox(
+                          key: const ValueKey<String>('save'),
+                          width: double.infinity,
+                          child: FilledButton.icon(
+                            style: FilledButton.styleFrom(
+                              backgroundColor: AppColors.teal,
+                            ),
+                            onPressed: () => _savePost(
+                              context,
+                              id: id,
+                              title: title,
+                              body: body,
+                            ),
+                            icon: const Icon(Icons.favorite_border_rounded),
+                            label: const Text('Save to Favorites'),
+                          ),
+                        ),
+                );
+              },
+            ),
           ),
         ),
       ),

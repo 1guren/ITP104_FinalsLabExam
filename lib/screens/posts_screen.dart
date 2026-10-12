@@ -39,9 +39,9 @@ class _PostsScreenState extends State<PostsScreen> {
     });
 
     try {
-      final http.Response response =
-          await http.get(Uri.parse('https://jsonplaceholder.typicode.com/posts'))
-              .timeout(const Duration(seconds: 15));
+      final http.Response response = await http
+          .get(Uri.parse('https://6acca04fb406cb8ec0c6123b.mockapi.io/api/v1/posts'))
+          .timeout(const Duration(seconds: 15));
 
       if (!mounted) {
         return;
@@ -101,29 +101,44 @@ class _PostsScreenState extends State<PostsScreen> {
   }
 
   void _openPostDetails(Map<String, dynamic> post) {
+    final int id = int.tryParse(post['id']?.toString() ?? '') ?? 0;
     Navigator.pushNamed(
       context,
       AppRoutes.details,
       arguments: <String, dynamic>{
-        'id': post['id'],
-        'title': post['title'],
-        'body': post['body'],
+        'id': id,
+        'title': post['title']?.toString() ?? 'Untitled post',
+        'body': post['body']?.toString() ?? '',
       },
+    );
+  }
+
+  Widget _buildLoading() {
+    return const Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          SizedBox(
+            width: 34,
+            height: 34,
+            child: CircularProgressIndicator(strokeWidth: 3),
+          ),
+          SizedBox(height: AppSpacing.large),
+          Text(
+            'Loading your reading feed',
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildPostsContent() {
     if (_isLoading) {
-      return const Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            CircularProgressIndicator(),
-            SizedBox(height: AppSpacing.large),
-            Text('Loading posts...'),
-          ],
-        ),
-      );
+      return _buildLoading();
     }
 
     if (_errorMessage != null) {
@@ -138,11 +153,67 @@ class _PostsScreenState extends State<PostsScreen> {
           AppSpacing.large,
           AppSpacing.small,
           AppSpacing.large,
-          104,
+          112,
         ),
-        itemCount: _posts.length,
+        itemCount: _posts.length + 2,
         itemBuilder: (BuildContext context, int index) {
-          final Map<String, dynamic> post = _posts[index];
+          if (index == 0) {
+            return _buildHero(context);
+          }
+          if (index == 1) {
+            return Padding(
+              padding: const EdgeInsets.only(
+                top: AppSpacing.xlarge,
+                bottom: AppSpacing.medium,
+              ),
+              child: Row(
+                children: <Widget>[
+                  Text(
+                    'RECENT POSTS',
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          color: AppColors.textSecondary,
+                          letterSpacing: 1.1,
+                        ),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.medium,
+                      vertical: AppSpacing.xsmall,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.tealSoft,
+                      borderRadius: BorderRadius.circular(AppRadius.pill),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: const BoxDecoration(
+                            color: AppColors.teal,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.small),
+                        Text(
+                          '${_posts.length} POSTS',
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                color: AppColors.teal,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 0.6,
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          final Map<String, dynamic> post = _posts[index - 2];
           return Padding(
             padding: const EdgeInsets.only(bottom: AppSpacing.medium),
             child: PostCard(
@@ -155,56 +226,149 @@ class _PostsScreenState extends State<PostsScreen> {
     );
   }
 
+  Widget _buildHero(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.xlarge),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: <Color>[AppColors.navy, AppColors.navyDeep],
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: AppColors.navy.withValues(alpha: 0.13),
+            blurRadius: 22,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: <Widget>[
+          Positioned(
+            right: -10,
+            top: -18,
+            child: Icon(
+              Icons.auto_stories_rounded,
+              size: 128,
+              color: Colors.white.withValues(alpha: 0.07),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.medium,
+                  vertical: AppSpacing.small,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.13),
+                  ),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Icon(Icons.menu_book_rounded, color: Color(0xFFE4C17A), size: 16),
+                    SizedBox(width: AppSpacing.small),
+                    Text(
+                      'YOUR READING SPACE',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.15,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSpacing.large),
+              Text(
+                'Ideas worth\ncoming back to.',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: Colors.white,
+                      fontSize: 29,
+                      height: 1.12,
+                      letterSpacing: -0.7,
+                    ),
+              ),
+              const SizedBox(height: AppSpacing.small),
+              Text(
+                'Explore the latest posts and save the ones that matter to you.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.76),
+                      height: 1.55,
+                    ),
+              ),
+              const SizedBox(height: AppSpacing.large),
+              Row(
+                children: <Widget>[
+                  const Icon(
+                    Icons.verified_outlined,
+                    color: Color(0xFFE4C17A),
+                    size: 17,
+                  ),
+                  const SizedBox(width: AppSpacing.small),
+                  Text(
+                    'A focused space for reading',
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          color: Colors.white.withValues(alpha: 0.92),
+                        ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Posts'),
+        title: Row(
+          children: <Widget>[
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: AppColors.navy,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.auto_stories_rounded,
+                color: Colors.white,
+                size: 21,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.medium),
+            const Text('Posts'),
+          ],
+        ),
         actions: <Widget>[
-          IconButton(
-            tooltip: 'View favorites',
-            onPressed: () => Navigator.pushNamed(context, AppRoutes.favorites),
-            icon: const Icon(Icons.favorite_border_rounded),
-          ),
-          const SizedBox(width: AppSpacing.small),
-        ],
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.large,
-              AppSpacing.large,
-              AppSpacing.large,
-              AppSpacing.small,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  'LATEST POSTS',
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        letterSpacing: 1.2,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                ),
-                const SizedBox(height: AppSpacing.xsmall),
-                Text(
-                  'Read something interesting.',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: AppSpacing.xsmall),
-                Text(
-                  'Open a post to see the full story or save it for later.',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ],
+            padding: const EdgeInsets.only(right: AppSpacing.small),
+            child: IconButton.filledTonal(
+              tooltip: 'View favorites',
+              onPressed: () => Navigator.pushNamed(context, AppRoutes.favorites),
+              style: IconButton.styleFrom(
+                backgroundColor: AppColors.tealSoft,
+                foregroundColor: AppColors.teal,
+              ),
+              icon: const Icon(Icons.favorite_rounded),
             ),
           ),
-          Expanded(child: _buildPostsContent()),
         ],
       ),
+      body: _buildPostsContent(),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _openCreatePostDialog,
         icon: const Icon(Icons.add_rounded),

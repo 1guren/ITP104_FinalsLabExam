@@ -22,11 +22,10 @@ class PostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Works with int ids (JSONPlaceholder) and String ids (MockAPI).
     final int id = int.tryParse(post['id']?.toString() ?? '') ?? 0;
     final String title = _capitalizedTitle(post['title']?.toString() ?? '');
     final String body = post['body']?.toString() ?? '';
-    final ColorScheme scheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -36,20 +35,44 @@ class PostCard extends StatelessWidget {
           horizontal: AppSpacing.large,
           vertical: AppSpacing.medium,
         ),
-        leading: CircleAvatar(
-          radius: 24,
-          backgroundColor: scheme.primaryContainer,
-          foregroundColor: scheme.onPrimaryContainer,
+        minVerticalPadding: AppSpacing.medium,
+        leading: Container(
+          width: 46,
+          height: 46,
+          decoration: BoxDecoration(
+            color: AppColors.navy,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          alignment: Alignment.center,
           child: Text(
             id.toString(),
-            style: const TextStyle(fontWeight: FontWeight.w800),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.3,
+            ),
           ),
         ),
-        title: Text(
-          title,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.titleMedium,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              'POST  /  ${id.toString().padLeft(2, '0')}',
+              style: textTheme.labelSmall?.copyWith(
+                color: AppColors.teal,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.0,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.small),
+            Text(
+              title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: textTheme.titleMedium?.copyWith(height: 1.3),
+            ),
+          ],
         ),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: AppSpacing.small),
@@ -57,13 +80,21 @@ class PostCard extends StatelessWidget {
             body,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodyMedium,
+            style: textTheme.bodyMedium,
           ),
         ),
-        trailing: Icon(
-          Icons.chevron_right_rounded,
-          color: scheme.primary,
-          size: 28,
+        trailing: Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(
+            color: AppColors.tealSoft,
+            borderRadius: BorderRadius.circular(11),
+          ),
+          child: const Icon(
+            Icons.arrow_forward_rounded,
+            color: AppColors.teal,
+            size: 18,
+          ),
         ),
       ),
     );

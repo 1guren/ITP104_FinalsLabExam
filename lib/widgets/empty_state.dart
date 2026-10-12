@@ -5,39 +5,39 @@ import '../app_theme.dart';
 class EmptyState extends StatelessWidget {
   const EmptyState({
     this.title = 'No favorites yet',
-    this.message = 'Open a post and tap Save to Favorites to keep it here.',
+    this.message = 'Open a post and save it to build your personal reading collection.',
+    this.onBrowse,
     super.key,
   });
 
   final String title;
   final String message;
+  final VoidCallback? onBrowse;
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme scheme = Theme.of(context).colorScheme;
-
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.xlarge),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 340),
+          constraints: const BoxConstraints(maxWidth: 350),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Container(
-                width: 96,
-                height: 96,
+                width: 104,
+                height: 104,
                 decoration: BoxDecoration(
-                  color: scheme.primaryContainer.withValues(alpha: 0.65),
-                  shape: BoxShape.circle,
+                  color: AppColors.tealSoft,
+                  borderRadius: BorderRadius.circular(30),
                 ),
-                child: Icon(
-                  Icons.favorite_border_rounded,
-                  size: 44,
-                  color: scheme.primary,
+                child: const Icon(
+                  Icons.bookmarks_outlined,
+                  size: 48,
+                  color: AppColors.teal,
                 ),
               ),
-              const SizedBox(height: AppSpacing.large),
+              const SizedBox(height: AppSpacing.xlarge),
               Text(
                 title,
                 style: Theme.of(context).textTheme.titleLarge,
@@ -49,6 +49,14 @@ class EmptyState extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyMedium,
                 textAlign: TextAlign.center,
               ),
+              if (onBrowse != null) ...<Widget>[
+                const SizedBox(height: AppSpacing.xlarge),
+                FilledButton.icon(
+                  onPressed: onBrowse,
+                  icon: const Icon(Icons.auto_stories_rounded),
+                  label: const Text('Browse posts'),
+                ),
+              ],
             ],
           ),
         ),

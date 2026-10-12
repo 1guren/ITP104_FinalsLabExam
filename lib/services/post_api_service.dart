@@ -30,7 +30,7 @@ class PostApiService {
     required String body,
   }) async {
     try {
-      final http.Response response = await http.post(Uri.parse('https://jsonplaceholder.typicode.com/posts'),
+      final http.Response response = await http.post(Uri.parse('https://6acca04fb406cb8ec0c6123b.mockapi.io/api/v1/posts'),
         headers: <String, String>{
           'Content-type': 'application/json; charset=UTF-8',
         },

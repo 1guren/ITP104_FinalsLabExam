@@ -1,6 +1,6 @@
 # Post Reader & Favorites
 
-Flutter 3.29.3 / Dart 3.7.2 lab project. The app uses Material 3, JSONPlaceholder, and Hive local storage.
+Flutter 3.29.3 / Dart 3.7.2 lab project. The app uses Material 3, the existing MockAPI endpoints, and Hive local storage.
 
 ## Run the app
 
@@ -14,14 +14,16 @@ The Android INTERNET permission is already present in `android/app/src/main/Andr
 
 ## Features
 
+- Refined visual design with a navy, teal, and muted gold palette, Material icons, stronger type hierarchy, and consistent card, dialog, and button styling.
+
 - Three named routes: `/`, `/details`, and `/favorites`.
-- Fetch posts from JSONPlaceholder with loading, error, retry, and pull-to-refresh states.
+- Fetch posts from the configured MockAPI endpoint with loading, error, retry, and pull-to-refresh states.
 - Submit a post with title/body validation and an on-screen result message.
 - Save posts to Hive, edit their personal notes, and remove favorites with confirmation or swipe.
 - Hive favorites persist after a full app restart.
 - A shared Material 3 theme and reusable widgets are defined under `lib/`.
 
-JSONPlaceholder simulates new-post creation. A successful POST returns a demo ID, but the new post is not added to the GET list.
+The current MockAPI POST endpoint reports the create result in a SnackBar. New posts are not inserted into the visible list automatically.
 
 ## Requirement traceability
 

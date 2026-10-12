@@ -14,30 +14,28 @@ class ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme scheme = Theme.of(context).colorScheme;
-
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.xlarge),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 360),
+          constraints: const BoxConstraints(maxWidth: 370),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Container(
-                width: 76,
-                height: 76,
+                width: 84,
+                height: 84,
                 decoration: BoxDecoration(
-                  color: scheme.errorContainer,
-                  shape: BoxShape.circle,
+                  color: const Color(0xFFFBEAEC),
+                  borderRadius: BorderRadius.circular(26),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.cloud_off_rounded,
-                  size: 36,
-                  color: scheme.onErrorContainer,
+                  size: 38,
+                  color: AppColors.danger,
                 ),
               ),
-              const SizedBox(height: AppSpacing.large),
+              const SizedBox(height: AppSpacing.xlarge),
               Text(
                 'We could not load the posts',
                 style: Theme.of(context).textTheme.titleLarge,
@@ -53,7 +51,7 @@ class ErrorView extends StatelessWidget {
               FilledButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Retry'),
+                label: const Text('Try again'),
               ),
             ],
           ),
