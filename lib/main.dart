@@ -20,7 +20,7 @@ class PostReaderApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Post Reader & Favorites',
+      title: 'Post Readerrrrr & Favorites',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       initialRoute: AppRoutes.posts,
