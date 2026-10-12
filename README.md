@@ -63,3 +63,25 @@ The current MockAPI POST endpoint reports the create result in a SnackBar. New p
 6. Delete a favorite using the trash icon and confirm the dialog. Optionally demonstrate swipe-to-delete.
 7. Save another favorite, fully close the app, reopen it, and show that the favorite and note remain.
 8. Capture the screenshots or screen recording required by the instructor.
+
+
+## Publish to GitHub Pages
+
+The workflow at `.github/workflows/deploy.yaml` builds the Flutter web app on every push to `main` and when manually started from GitHub Actions. It calculates the correct base path from the repository name and uploads `build/web` as the Pages artifact.
+
+Before the first deployment, open the repository on GitHub and select Settings, then Pages, then set Build and deployment to GitHub Actions. The workflow checks this configuration during its build job.
+
+From your existing local clone, commit and push the changed files. A plain `git push` does not publish uncommitted changes:
+
+```bash
+git status
+git add .github/workflows/deploy.yaml web/index.html web/manifest.json README.md lib
+git commit -m "Fix GitHub Pages deployment"
+git push origin main
+```
+
+Then open the repository's Actions tab. Confirm both the build and deploy jobs succeed. If a run fails, open the failed job and read the first red step. The Pages URL for a project repository follows `https://OWNER.github.io/REPOSITORY/`.
+
+## Browser and API notes
+
+The web app requests data from the MockAPI endpoint defined in `lib/services/post_api_service.dart`. Both post loading and post creation use the same endpoint. GitHub Pages only serves the Flutter web frontend. It does not host the Android app or run a PHP server.
