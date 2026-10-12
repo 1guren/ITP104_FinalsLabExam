@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+// Single place to change the API address (JSONPlaceholder, as the exam requires).
 const String postsEndpoint = 'https://jsonplaceholder.typicode.com/posts';
 
 class PostCreateResult {
@@ -19,27 +20,25 @@ class PostCreateResult {
 }
 
 class PostApiService {
-  // The Posts screen keeps its GET and status-code branches visible for the lab rubric.
-  Future<http.Response> fetchPosts() {
-    return http.get(Uri.parse(postsEndpoint))
-        .timeout(const Duration(seconds: 15));
-  }
-
+  /// Sends a POST request with jsonEncode and reports success only on 201.
   Future<PostCreateResult> createPost({
     required String title,
     required String body,
   }) async {
     try {
-      final http.Response response = await http.post(Uri.parse('https://6acca04fb406cb8ec0c6123b.mockapi.io/api/v1/posts'),
-        headers: <String, String>{
-          'Content-type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(<String, dynamic>{
-          'title': title,
-          'body': body,
-          'userId': 1,
-        }),
-      ).timeout(const Duration(seconds: 15));
+      final http.Response response = await http
+          .post(
+            Uri.parse(postsEndpoint),
+            headers: <String, String>{
+              'Content-type': 'application/json; charset=UTF-8',
+            },
+            body: jsonEncode(<String, dynamic>{
+              'title': title,
+              'body': body,
+              'userId': 1,
+            }),
+          )
+          .timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 201) {
         int? returnedId;

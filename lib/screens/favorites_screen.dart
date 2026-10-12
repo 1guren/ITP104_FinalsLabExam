@@ -22,32 +22,16 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          icon: Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.errorContainer,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Icon(
-              Icons.delete_outline_rounded,
-              color: Theme.of(context).colorScheme.error,
-              size: 26,
-            ),
-          ),
           title: const Text('Remove favorite?'),
           content: Text(
-            '“${post['title']}” will be removed from your saved collection.',
+            'Remove "${post['title']}" from your favorites?',
           ),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text('Keep post'),
+              child: const Text('Cancel'),
             ),
             FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.danger,
-              ),
               onPressed: () => Navigator.pop(dialogContext, true),
               child: const Text('Remove'),
             ),
@@ -69,76 +53,20 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     if (!mounted) {
       return;
     }
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(AppSnackbar.info('Removed from favorites.'));
+    ScaffoldMessenger.of(context).showSnackBar(
+      AppSnackbar.info('Removed from favorites.'),
+    );
   }
 
   Future<void> _editNote(Map<String, dynamic> post) async {
     final int id = post['id'] as int;
     final String currentNote = post['note'] as String? ?? '';
-    final TextEditingController controller =
-        TextEditingController(text: currentNote);
 
     final String? updatedNote = await showDialog<String>(
       context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          icon: Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: AppColors.noteBackground,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Icon(
-              Icons.edit_note_rounded,
-              color: AppColors.gold,
-              size: 28,
-            ),
-          ),
-          title: const Text('Personal note'),
-          content: SizedBox(
-            width: 380,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  'Add a short reminder for this saved post.',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: AppSpacing.large),
-                TextField(
-                  controller: controller,
-                  autofocus: true,
-                  maxLength: 150,
-                  maxLines: 3,
-                  textCapitalization: TextCapitalization.sentences,
-                  decoration: const InputDecoration(
-                    hintText: 'Type your note here',
-                    alignLabelWithHint: true,
-                    prefixIcon: Icon(Icons.sticky_note_2_outlined),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel'),
-            ),
-            FilledButton.icon(
-              onPressed: () => Navigator.pop(dialogContext, controller.text.trim()),
-              icon: const Icon(Icons.check_rounded, size: 18),
-              label: const Text('Save note'),
-            ),
-          ],
-        );
-      },
+      builder: (BuildContext dialogContext) =>
+          _EditNoteDialog(initialNote: currentNote),
     );
-    controller.dispose();
 
     if (updatedNote == null || !mounted) {
       return;
@@ -148,73 +76,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     if (!mounted) {
       return;
     }
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(AppSnackbar.success('Note saved.'));
-  }
-
-  Widget _buildCollectionHeader(int count) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.large),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(AppSpacing.large),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(AppRadius.card),
-          border: Border.all(color: AppColors.outline),
-        ),
-        child: Row(
-          children: <Widget>[
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: AppColors.tealSoft,
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: const Icon(
-                Icons.bookmarks_rounded,
-                color: AppColors.teal,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: AppSpacing.medium),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    'Your saved collection',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: AppSpacing.xsmall),
-                  Text(
-                    'Posts you want to keep close.',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.medium,
-                vertical: AppSpacing.small,
-              ),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF0F3F7),
-                borderRadius: BorderRadius.circular(AppRadius.pill),
-              ),
-              child: Text(
-                count.toString(),
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: AppColors.navy,
-                    ),
-              ),
-            ),
-          ],
-        ),
-      ),
+    ScaffoldMessenger.of(context).showSnackBar(
+      AppSnackbar.success('Note saved.'),
     );
   }
 
@@ -223,7 +86,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     final String title = post['title'] as String? ?? 'Untitled post';
     final String body = post['body'] as String? ?? '';
     final String note = post['note'] as String? ?? '';
-    final TextTheme textTheme = Theme.of(context).textTheme;
+    final ColorScheme scheme = Theme.of(context).colorScheme;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.medium),
@@ -236,36 +99,21 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           if (!mounted) {
             return;
           }
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(AppSnackbar.info('Removed from favorites.'));
+          ScaffoldMessenger.of(context).showSnackBar(
+            AppSnackbar.info('Removed from favorites.'),
+          );
         },
         background: Container(
           alignment: Alignment.centerRight,
           padding: const EdgeInsets.only(right: AppSpacing.xlarge),
           decoration: BoxDecoration(
-            color: const Color(0xFFFBEAEC),
+            color: scheme.errorContainer,
             borderRadius: BorderRadius.circular(AppRadius.card),
           ),
-          child: const Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              Text(
-                'REMOVE',
-                style: TextStyle(
-                  color: AppColors.danger,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.7,
-                ),
-              ),
-              SizedBox(width: AppSpacing.small),
-              Icon(
-                Icons.delete_outline_rounded,
-                color: AppColors.danger,
-                size: 24,
-              ),
-            ],
+          child: Icon(
+            Icons.delete_outline_rounded,
+            color: scheme.onErrorContainer,
+            size: 28,
           ),
         ),
         child: Card(
@@ -277,116 +125,67 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: AppColors.navy,
-                        borderRadius: BorderRadius.circular(13),
-                      ),
-                      child: const Icon(
-                        Icons.article_rounded,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.medium),
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            'SAVED POST  /  ${id.toString().padLeft(2, '0')}',
-                            style: textTheme.labelSmall?.copyWith(
-                              color: AppColors.teal,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0.85,
-                            ),
-                          ),
-                          const SizedBox(height: AppSpacing.small),
-                          Text(
-                            title,
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                            style: textTheme.titleMedium,
-                          ),
-                        ],
+                      child: Text(
+                        title,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
                     ),
-                    const SizedBox(width: AppSpacing.xsmall),
-                    IconButton.filledTonal(
+                    const SizedBox(width: AppSpacing.small),
+                    IconButton(
                       tooltip: 'Edit note',
                       onPressed: () => _editNote(post),
+                      icon: const Icon(Icons.edit_outlined),
                       visualDensity: VisualDensity.compact,
-                      style: IconButton.styleFrom(
-                        backgroundColor: AppColors.tealSoft,
-                        foregroundColor: AppColors.teal,
-                      ),
-                      icon: const Icon(Icons.edit_note_rounded, size: 21),
                     ),
-                    const SizedBox(width: AppSpacing.xsmall),
-                    IconButton.filledTonal(
+                    IconButton(
                       tooltip: 'Delete favorite',
                       onPressed: () => _deleteFromButton(post),
-                      visualDensity: VisualDensity.compact,
-                      style: IconButton.styleFrom(
-                        backgroundColor: const Color(0xFFFBEAEC),
-                        foregroundColor: AppColors.danger,
+                      icon: Icon(
+                        Icons.delete_outline_rounded,
+                        color: scheme.error,
                       ),
-                      icon: const Icon(Icons.delete_outline_rounded, size: 20),
+                      visualDensity: VisualDensity.compact,
                     ),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.large),
+                const SizedBox(height: AppSpacing.small),
                 Text(
                   body,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
-                  style: textTheme.bodyMedium,
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: AppSpacing.large),
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(AppSpacing.medium),
                   decoration: BoxDecoration(
-                    color: AppColors.noteBackground,
+                    color: scheme.primaryContainer.withValues(alpha: 0.48),
                     borderRadius: BorderRadius.circular(AppRadius.button),
-                    border: Border.all(color: AppColors.noteBorder),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      const Icon(
+                      Icon(
                         Icons.sticky_note_2_outlined,
-                        color: AppColors.gold,
+                        color: scheme.primary,
                         size: 20,
                       ),
                       const SizedBox(width: AppSpacing.small),
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              'PERSONAL NOTE',
-                              style: textTheme.labelSmall?.copyWith(
-                                color: const Color(0xFF8C6A2D),
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 0.8,
-                              ),
-                            ),
-                            const SizedBox(height: AppSpacing.xsmall),
-                            Text(
-                              note.isEmpty ? 'Add a personal note...' : note,
-                              style: textTheme.bodyMedium?.copyWith(
+                        child: Text(
+                          note.isEmpty ? 'Add a personal note...' : note,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                 color: note.isEmpty
-                                    ? const Color(0xFF927F60)
-                                    : AppColors.textPrimary,
+                                    ? scheme.onSurfaceVariant
+                                    : scheme.onSurface,
                                 fontStyle: note.isEmpty
                                     ? FontStyle.italic
                                     : FontStyle.normal,
                               ),
-                            ),
-                          ],
                         ),
                       ),
                     ],
@@ -406,8 +205,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 72,
         leading: IconButton(
-          tooltip: 'Back to posts',
+          tooltip: 'Back',
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_rounded),
         ),
@@ -418,29 +218,26 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             const Text('Favorites'),
             ValueListenableBuilder<Box<dynamic>>(
               valueListenable: box.listenable(),
-              builder: (BuildContext context, Box<dynamic> listenableBox, Widget? child) {
+              builder: (BuildContext context, Box<dynamic> listenableBox,
+                  Widget? child) {
                 final int count = listenableBox.length;
                 return Text(
                   '$count ${count == 1 ? 'saved post' : 'saved posts'}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
-                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w500,
                       ),
                 );
               },
             ),
           ],
         ),
-        actions: const <Widget>[
-          Padding(
-            padding: EdgeInsets.only(right: AppSpacing.large),
-            child: Icon(Icons.bookmarks_rounded, color: AppColors.teal),
-          ),
-        ],
       ),
       body: ValueListenableBuilder<Box<dynamic>>(
         valueListenable: box.listenable(),
-        builder: (BuildContext context, Box<dynamic> listenableBox, Widget? child) {
+        builder: (BuildContext context, Box<dynamic> listenableBox,
+            Widget? child) {
+          // Hive returns dynamic maps, so normalize each saved value before reading it.
           final List<Map<String, dynamic>> favorites = listenableBox.values
               .whereType<Map>()
               .map(
@@ -449,26 +246,67 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               .toList(growable: false);
 
           if (favorites.isEmpty) {
-            return EmptyState(onBrowse: () => Navigator.pop(context));
+            return const EmptyState();
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.large,
-              AppSpacing.small,
-              AppSpacing.large,
-              AppSpacing.xlarge,
-            ),
-            itemCount: favorites.length + 1,
+            padding: const EdgeInsets.all(AppSpacing.large),
+            itemCount: favorites.length,
             itemBuilder: (BuildContext context, int index) {
-              if (index == 0) {
-                return _buildCollectionHeader(favorites.length);
-              }
-              return _buildFavoriteCard(favorites[index - 1]);
+              return _buildFavoriteCard(favorites[index]);
             },
           );
         },
       ),
+    );
+  }
+}
+
+// Owns its TextEditingController so it is disposed only after the dialog is gone.
+class _EditNoteDialog extends StatefulWidget {
+  const _EditNoteDialog({required this.initialNote});
+
+  final String initialNote;
+
+  @override
+  State<_EditNoteDialog> createState() => _EditNoteDialogState();
+}
+
+class _EditNoteDialogState extends State<_EditNoteDialog> {
+  late final TextEditingController _controller =
+      TextEditingController(text: widget.initialNote);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Personal note'),
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        maxLength: 150,
+        maxLines: 3,
+        textCapitalization: TextCapitalization.sentences,
+        decoration: const InputDecoration(
+          hintText: 'Add a note about this post',
+          alignLabelWithHint: true,
+        ),
+      ),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(context, _controller.text.trim()),
+          child: const Text('Save note'),
+        ),
+      ],
     );
   }
 }
